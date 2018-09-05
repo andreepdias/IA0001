@@ -98,6 +98,10 @@ struct Ant{
         double prob_drop, prob_rand;
 
         prob_drop = sumItems(grid, alpha, 1);
+
+        if(prob_drop < 0.0)
+            prob_drop = 0.0;
+
         prob_drop /= sigma * sigma;
 
         if(prob_drop >= 1.0)
@@ -122,6 +126,10 @@ struct Ant{
         double prob_pick, prob_rand;
 
         prob_pick = sumItems(grid, alpha, 2);
+
+        if(prob_pick < 0.0)
+            prob_pick = 0.0;
+
         prob_pick /= sigma * sigma;
 
         if(prob_pick <= 1.0)
