@@ -200,6 +200,41 @@ void draw(vvr &grid, sf::RenderWindow &window){
                     case 4:
                         item.setFillColor(sf::Color(255,215,0));
                         break;
+                    case 5:
+                        item.setFillColor(sf::Color(0,0,0));
+                        break;
+                    case 6:
+                        item.setFillColor(sf::Color(169,169,169));
+                        break;
+                    case 7:
+                        item.setFillColor(sf::Color	(221,160,221));
+                        break;
+                    case 8:
+                        item.setFillColor(sf::Color(106,90,205));
+                        break;
+                    case 9:
+                        item.setFillColor(sf::Color(0,0,139));
+                        break;
+                    case 10:
+                        item.setFillColor(sf::Color(100,149,237));
+                        break;
+                    case 11:
+                        item.setFillColor(sf::Color(0,100,0));
+                        break;
+                    case 12:
+                        item.setFillColor(sf::Color(128,128,0));
+                        break;
+                    case 13:
+                        item.setFillColor(sf::Color(255,0,0));
+                        break;
+                    case 14:
+                        item.setFillColor(sf::Color(128,0,128));
+                        break;
+                    case 15:
+                        item.setFillColor(sf::Color(135,206,235));
+                        break;
+
+
                 }
             }else{
                 item.setFillColor(sf::Color(255,255,255));
@@ -218,12 +253,37 @@ void initGrid(vvr &grid, vector<Ant> &ants, int tam_grid, int num_formigas, int 
 
     grid = vvr(tam_grid, vr(tam_grid, NULL));
 
-    ifstream dataset("dataset4.txt");
-    int x, y, c;
-    double a, b;
+    ifstream dataset("datasetFlor.txt");
+    int x, y, cc;
+    double a, b, c, d;
     char l;
+    string cor;
 
-    while(dataset >> a >> l >> b >> l >> c){
+    // while(dataset >> a >> l >> b >> l >> c){
+    //     do{
+    //         x = rand() % tam_grid;
+    //         y = rand() % tam_grid;
+    //     }while(grid[x][y] != NULL);
+    //
+    //     vd f;
+    //     f.push_back(a);
+    //     f.push_back(b);
+    //
+    //     grid[x][y] = new Resource(f, c);
+    // }
+    // while(dataset >> a >> b >> c){
+    //     do{
+    //         x = rand() % tam_grid;
+    //         y = rand() % tam_grid;
+    //     }while(grid[x][y] != NULL);
+    //
+    //     vd f;
+    //     f.push_back(a);
+    //     f.push_back(b);
+    //
+    //     grid[x][y] = new Resource(f, c);
+    // }
+    while(dataset >> a >> l >> b >> l >> c >> l >> d >> l >> cor){
         do{
             x = rand() % tam_grid;
             y = rand() % tam_grid;
@@ -232,8 +292,19 @@ void initGrid(vvr &grid, vector<Ant> &ants, int tam_grid, int num_formigas, int 
         vd f;
         f.push_back(a);
         f.push_back(b);
+        f.push_back(c);
+        f.push_back(d);
 
-        grid[x][y] = new Resource(f, c);
+        if(cor == "Iris-setosa")
+            cc = 1;
+        else if(cor == "Iris-versicolor")
+            cc = 2;
+        else if(cor == "Iris-virginica")
+            cc = 3;
+        else
+            cc = 0;
+
+        grid[x][y] = new Resource(f, cc);
     }
 
     for(int i = 0; i < num_formigas; i++){
@@ -249,7 +320,7 @@ int main(){
 
     int tam_grid, num_formigas, num_iteracoes, tam_raio;
     double sigma, alpha;
-    ifstream in("input.txt");
+    ifstream in("inputFlor.txt");
 
     cout << "Lendo dados de entrada..." << endl;
     in >> tam_grid >> num_formigas >> tam_raio >> num_iteracoes >> sigma >> alpha;
@@ -280,7 +351,7 @@ int main(){
         }
 
         k++;
-        if(k == 250000){
+        if(k == 50000){
             sf::Event event;
             while(window.pollEvent(event)){
                 if(event.type == sf::Event::Closed)
