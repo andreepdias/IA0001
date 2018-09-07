@@ -4,22 +4,24 @@
 using namespace std;
 
 typedef vector<int> vi;
+typedef vector<double> vd;
 typedef vector<vector<int> > vvi;
 
 #define WINDOW_SIZE 500
 
-int dx[] = {-1, 0, 0, 1};
-int dy[] = {0, -1, 1, 0};
-
 struct Resource{
-    int x, y, cor;
-    Resource(int a, int b, int c){
-        x = a, y = b, cor = c;
+    int color;
+    vd features;
+    Resource(vd &f, int c){
+        features = f, color = c;
     }
 };
 
 typedef vector<vector<Resource*> > vvr;
 typedef vector<Resource*> vr;
+
+int dx[] = {-1, 0, 0, 1};
+int dy[] = {0, -1, 1, 0};
 
 struct Ant{
     int x, y, raio;
@@ -32,13 +34,13 @@ struct Ant{
         bag = NULL;
     }
 
-    double sumItems(vvr &grid, double alpha, int dropOrTake){
-        int a, b, sg = grid.size();
-        double sum = 0, d;
+    double sumItems(vvr &grid, double alpha, int dropOrTake, int fs){
+        int a, b, sg = grid.size(), i, j, k;
+        double sum = 0, d, s = 0;
         bool negative = false;
 
-        for(int i = -raio; i <= raio; i++){
-            for(int j = -raio; j <= raio; j++){
+        for(i = -raio; i <= raio; i++){
+            for(j = -raio; j <= raio; j++){
                 if(i == 0 and j == 0)
                     continue;
 
@@ -55,11 +57,16 @@ struct Ant{
                     b = 0;
 
                 if(grid[a][b] != NULL){
-                    if(dropOrTake == 1){
-                        d = sqrt( (pow(grid[a][b] -> x - bag -> x, 2)) + (pow(grid[a][b] -> y - bag -> y, 2) ) ) ;
-                    }else if(dropOrTake == 2){
-                        d = sqrt( (pow(grid[x][y] -> x - grid[a][b] -> x, 2)) + (pow(grid[x][y] -> y - grid[a][b] -> y, 2) ) );
+
+                    s = 0;
+                    for(k = 0; k < fs; k++){
+                        if(dropOrTake == 1){
+                            s += pow(bag -> features[k] - grid[a][b] -> features[k], 2);
+                        }else if(dropOrTake == 2){
+                            s += pow(grid[x][y] -> features[k] - grid[a][b] -> features[k], 2);
+                        }
                     }
+                    d = sqrt(s);
                     d = (1.0 - (d / alpha));
 
                     if(d > 0.0){
@@ -80,27 +87,21 @@ struct Ant{
         return 0.0;
     }
 
-    void move(vvi &grid_ant){
-
-        int sg = grid_ant.size();
+    void move(int n){
         int r = rand() % 4;
-
-        grid_ant[x][y]--;
 
         x += dx[r];
         y += dy[r];
 
         if(x < 0)
-            x = sg -1;
-        else if(x >= sg)
+            x = n - 1;
+        else if(x >= n)
             x = 0;
 
         if(y < 0)
-            y = sg - 1;
-        else if(y >= sg)
+            y = n - 1;
+        else if(y >= n)
             y = 0;
-
-        grid_ant[x][y]++;
     }
 
     void drop(vvr &grid, double sigma, double alpha){
@@ -110,7 +111,7 @@ struct Ant{
 
         double prob_drop, prob_rand;
 
-        prob_drop = sumItems(grid, alpha, 1);
+        prob_drop = sumItems(grid, alpha, 1, bag -> features.size());
         prob_drop /= (sigma * sigma);
 
         if(prob_drop < 0.0)
@@ -137,7 +138,7 @@ struct Ant{
 
         double prob_pick, prob_rand;
 
-        prob_pick = sumItems(grid, alpha, 2);
+        prob_pick = sumItems(grid, alpha, 2, grid[x][y] -> features.size());
         prob_pick /= (sigma * sigma);
 
         if(prob_pick < 0.0)
@@ -157,9 +158,25 @@ struct Ant{
             carregando = true;
         }
     }
+
+    void forceDrop(vvr &grid, double sigma, double alpha){
+        int k = 0, gs = grid.size();
+
+        while(carregando and k <= 1000000){
+            move(gs);
+            drop(grid, sigma, alpha);
+            k++;
+        }
+        if(carregando){
+            grid[x][y] = bag;
+            bag = NULL;
+            carregando = false;
+        }
+
+    }
 };
 
-void draw(vvr &grid, vvi &grid_ant, sf::RenderWindow &window){
+void draw(vvr &grid, sf::RenderWindow &window){
 
     int sx = grid.size();
     int sy = grid[0].size();
@@ -170,7 +187,7 @@ void draw(vvr &grid, vvi &grid_ant, sf::RenderWindow &window){
         for(int j = 0; j < sy; j++){
 
             if(grid[i][j] != NULL){
-                switch(grid[i][j]->cor){
+                switch(grid[i][j]->color){
                     case 1:
                         item.setFillColor(sf::Color(255,20,147));
                         break;
@@ -195,14 +212,13 @@ void draw(vvr &grid, vvi &grid_ant, sf::RenderWindow &window){
     window.display();
 }
 
-void initGrid(vvr &grid, vvi &grid_ant, vector<Ant> &ants, int tam_grid, int num_formigas, int tam_raio){
+void initGrid(vvr &grid, vector<Ant> &ants, int tam_grid, int num_formigas, int tam_raio){
 
     srand(time(NULL));
 
     grid = vvr(tam_grid, vr(tam_grid, NULL));
-    grid_ant = vvi(tam_grid, vi(tam_grid, 0));
 
-    ifstream dataset("dataset2.txt");
+    ifstream dataset("dataset4.txt");
     int x, y, c;
     double a, b;
     char l;
@@ -213,7 +229,11 @@ void initGrid(vvr &grid, vvi &grid_ant, vector<Ant> &ants, int tam_grid, int num
             y = rand() % tam_grid;
         }while(grid[x][y] != NULL);
 
-        grid[x][y] = new Resource(a, b, c);
+        vd f;
+        f.push_back(a);
+        f.push_back(b);
+
+        grid[x][y] = new Resource(f, c);
     }
 
     for(int i = 0; i < num_formigas; i++){
@@ -221,7 +241,6 @@ void initGrid(vvr &grid, vvi &grid_ant, vector<Ant> &ants, int tam_grid, int num
         int y = rand() % tam_grid;
 
         ants.push_back(Ant(x, y, tam_raio));
-        grid_ant[x][y]++;
     }
 }
 
@@ -243,16 +262,15 @@ int main(){
     cout << "Alpha:\t" << alpha << endl;
 
     vvr grid;
-    vvi grid_ant;
     vector<Ant> ants;
 
-    initGrid(grid, grid_ant, ants, tam_grid, num_formigas, tam_raio);
+    initGrid(grid, ants, tam_grid, num_formigas, tam_raio);
 
-    int k = 0;
+    int k = 0, kk = 0;
     while(num_iteracoes--){
 
         for(int i = 0; i < num_formigas; i++){
-            ants[i].move(grid_ant);
+            ants[i].move(tam_grid);
 
             if(ants[i].carregando){
                 ants[i].drop(grid, sigma, alpha);
@@ -261,16 +279,31 @@ int main(){
             }
         }
 
-        sf::Event event;
-        while(window.pollEvent(event)){
-            if(event.type == sf::Event::Closed)
-                window.close();
-        }
-
         k++;
-        if(k == 25000){
-            draw(grid, grid_ant, window);
+        if(k == 250000){
+            sf::Event event;
+            while(window.pollEvent(event)){
+                if(event.type == sf::Event::Closed)
+                window.close();
+            }
+            draw(grid, window);
+
+            kk += k;
             k = 0;
+            cout << "Numero de iteracoes: " << kk << endl;
+        }
+    }
+
+    for(int i = 0; i < num_formigas; i++){
+        ants[i].forceDrop(grid, sigma, alpha);
+    }
+    cout << "Formigas paradas." << endl;
+    draw(grid, window);
+
+    bool pressed = false;
+    while(pressed == false){
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+        	pressed = true;
         }
     }
     window.close();
