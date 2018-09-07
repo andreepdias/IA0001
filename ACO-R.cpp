@@ -46,7 +46,6 @@ struct Ant{
                     a = sg - 1;
                 else if(a >= sg)
                     a = 0;
-
                 if(b < 0)
                     b = sg - 1;
                 else if(b >= sg)
@@ -98,11 +97,10 @@ struct Ant{
         double prob_drop, prob_rand;
 
         prob_drop = sumItems(grid, alpha, 1);
+        prob_drop /= (sigma * sigma);
 
         if(prob_drop < 0.0)
             prob_drop = 0.0;
-
-        prob_drop /= sigma * sigma;
 
         if(prob_drop >= 1.0)
             prob_drop = 1.0;
@@ -112,9 +110,9 @@ struct Ant{
         prob_rand = (double) rand() / RAND_MAX;
 
         if(prob_rand <= prob_drop){
-            carregando = false;
             grid[x][y] = bag;
             bag = NULL;
+            carregando = false;
         }
     }
 
@@ -126,24 +124,23 @@ struct Ant{
         double prob_pick, prob_rand;
 
         prob_pick = sumItems(grid, alpha, 2);
+        prob_pick /= (sigma * sigma);
 
         if(prob_pick < 0.0)
             prob_pick = 0.0;
 
-        prob_pick /= sigma * sigma;
-
         if(prob_pick <= 1.0)
             prob_pick = 1.0;
         else
-            prob_pick = (1 / (prob_pick * prob_pick) );
+            prob_pick = (1.0 / (prob_pick * prob_pick) );
 
 
         prob_rand = (double) rand() / RAND_MAX;
 
         if(prob_rand <= prob_pick){
-            carregando = true;
             bag = grid[x][y];
             grid[x][y] = NULL;
+            carregando = true;
         }
     }
 };
@@ -202,7 +199,7 @@ void initGrid(vvr &grid, vvi &grid_ant, vector<Ant> &ants, int tam_grid, int num
             y = rand() % tam_grid;
         }while(grid[x][y] != NULL);
 
-        grid[x][y] = new Resource(x, y, c);
+        grid[x][y] = new Resource(a, b, c);
     }
 
     for(int i = 0; i < num_formigas; i++){
