@@ -6,8 +6,7 @@ using namespace std;
 typedef vector<int> vi;
 typedef vector<vector<int> > vvi;
 
-#define WINDOW_X 700
-#define WINDOW_Y 700
+#define WINDOW_SIZE 500
 
 int dx[] = {-1, 0, 0, 1};
 int dy[] = {0, -1, 1, 0};
@@ -36,9 +35,13 @@ struct Ant{
     double sumItems(vvr &grid, double alpha, int dropOrTake){
         int a, b, sg = grid.size();
         double sum = 0, d;
+        bool negative = false;
 
         for(int i = -raio; i <= raio; i++){
             for(int j = -raio; j <= raio; j++){
+                if(i == 0 and j == 0)
+                    continue;
+
                 a = x + i;
                 b = y + j;
 
@@ -52,18 +55,29 @@ struct Ant{
                     b = 0;
 
                 if(grid[a][b] != NULL){
-
                     if(dropOrTake == 1){
                         d = sqrt( (pow(grid[a][b] -> x - bag -> x, 2)) + (pow(grid[a][b] -> y - bag -> y, 2) ) ) ;
                     }else if(dropOrTake == 2){
                         d = sqrt( (pow(grid[x][y] -> x - grid[a][b] -> x, 2)) + (pow(grid[x][y] -> y - grid[a][b] -> y, 2) ) );
                     }
-                    d = d * 1.0 / alpha;
-                    sum += (1.0 - d);
+                    d = (1.0 - (d / alpha));
+
+                    if(d > 0.0){
+                        sum += d;
+                    }else{
+                        negative = true;
+                        break;
+                    }
                 }
             }
+            if(negative){
+                break;
+            }
         }
-        return sum;
+        if(!negative){
+            return sum;
+        }
+        return 0.0;
     }
 
     void move(vvi &grid_ant){
@@ -150,7 +164,7 @@ void draw(vvr &grid, vvi &grid_ant, sf::RenderWindow &window){
     int sx = grid.size();
     int sy = grid[0].size();
 
-    sf::RectangleShape item(sf::Vector2f(WINDOW_X / (double) sx, WINDOW_X / (double) sx));
+    sf::RectangleShape item(sf::Vector2f(WINDOW_SIZE / (double) sx, WINDOW_SIZE / (double) sx));
 
     for(int i = 0; i < sx; i++){
         for(int j = 0; j < sy; j++){
@@ -174,7 +188,7 @@ void draw(vvr &grid, vvi &grid_ant, sf::RenderWindow &window){
                 item.setFillColor(sf::Color(255,255,255));
             }
 
-            item.setPosition(WINDOW_X * i / (double)sx, WINDOW_Y * j / (double) sy);
+            item.setPosition(WINDOW_SIZE * i / (double)sx, WINDOW_SIZE * j / (double) sy);
             window.draw(item);
         }
     }
@@ -212,7 +226,7 @@ void initGrid(vvr &grid, vvi &grid_ant, vector<Ant> &ants, int tam_grid, int num
 }
 
 int main(){
-    sf::RenderWindow window(sf::VideoMode(WINDOW_X, WINDOW_Y), "ACO");
+    sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE, WINDOW_SIZE), "ACO");
 
     int tam_grid, num_formigas, num_iteracoes, tam_raio;
     double sigma, alpha;
@@ -234,12 +248,10 @@ int main(){
 
     initGrid(grid, grid_ant, ants, tam_grid, num_formigas, tam_raio);
 
-    int sa = ants.size();
-
     int k = 0;
     while(num_iteracoes--){
 
-        for(int i = 0; i < sa; i++){
+        for(int i = 0; i < num_formigas; i++){
             ants[i].move(grid_ant);
 
             if(ants[i].carregando){
