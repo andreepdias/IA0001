@@ -212,7 +212,7 @@ int main(){
 
 
         k++;
-        if(k == 50000){
+        if(k == 10000){
             sf::Event event;
             while(window.pollEvent(event)){
                 if(event.type == sf::Event::Closed)
