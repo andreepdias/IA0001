@@ -94,19 +94,35 @@ int avaliate(vc &clausulas, vb &variaveis){
     return cont;
 }
 
-void pertubate(vb &variaveis, int n){
+void flip(vb &variaveis, int i){
+    if(variaveis[i]){
+        variaveis[i] = false;
+    }else{
+        variaveis[i] = true;
+    }
+}
+
+void pertubate(vb &variaveis, vc &clausulas, int &n){
     srand(time(NULL));
 
-    int s = variaveis.size(), x;
+    int a;
+    double p;
+    stack<int> s;
 
-    while(n--){
-        x = rand() % s;
-        if(variaveis[x]){
-            variaveis[x] = false;
-        }else{
-            variaveis[x] = true;
+    for(int i = 0; i < variaveis.size(); i++){
+        p = (double) rand() / RAND_MAX;
+        if(p < 0,05){
+            flip(variaveis, i);
+            s.push(i);
         }
     }
+
+    a = avaliate(clausulas, variaveis);
+
+    if(a < n){
+        
+    }
+
 
 }
 
@@ -120,14 +136,10 @@ int main(int argc, char const *argv[]) {
     readFile(clausulas, variaveis, arquivo);
     initVariables(variaveis);
 
-    cout << avaliate(clausulas, variaveis) << endl;
+    int n = avalate(clausulas, variaveis);
 
-    string ch;
-
-    while(true){
-        cin >> ch;
-        pertubate(variaveis, 3);
-        cout << avaliate(clausulas, variaveis) << endl;
+    for(int i = 0; i < 250000; i++){
+        pertubate(variaveis, clausulas, n);
     }
 
 
