@@ -239,11 +239,11 @@ int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double 
         }
 
         a = avaliate(conf_candidata, clausulas);         //VERIFICA SE CONFIGURAÇÃO GERADA É MELHOR QUE ATUAL
-        t = calculateTemperature(k, n, t0, tn, cs);
         if(a > atual){
             conf_atual = conf_candidata;
             atual = a;
         }else if(a < atual){
+            t = calculateTemperature(k, n, t0, tn, cs);
             p = (double) rand() / RAND_MAX;
             c = exp((double)(a - atual) / t);
             if(p <= c){
@@ -270,14 +270,14 @@ int main(int argc, char const *argv[]) {
 
     double media = 0;
     int x;
-    for(int i = 0; i < 10; i++){
+    for(int i = 0; i < 1; i++){
         randomize(variaveis);
         atual = avaliate(variaveis, clausulas);
         x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento);
         media += x;
         cout << "Execucao " << i+1 << ": " << x << endl;
     }
-    media /= 10;
+    media /= 1;
     cout << "Media: " << media << endl;
 
 }
