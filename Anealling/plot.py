@@ -9,4 +9,4 @@ with open('out') as f:
         array.append([float(line)])
 
 plt.plot(array)
-plt.savefig('t4.png')
+plt.savefig('t2.png')

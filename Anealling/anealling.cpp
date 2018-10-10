@@ -80,10 +80,12 @@ void printVariables(vb &variaveis){
     }
 }
 
-void readFile(vc &clausulas, vb &variaveis, ifstream &arquivo, int &n, double &t0, double &tn, int &cs){
+void readFile(vc &clausulas, vb &variaveis, ifstream &arquivo, int &n, double &t0, double &tn){
     int var, clau, a, b, c, x;
 
-    arquivo >> var >> clau >> n >> t0 >> tn >> cs;
+    ifstream arquivo_parametros("parametros");
+    arquivo >> var >> clau;
+    arquivo_parametros >> n >> t0 >> tn;
 
     for(int i = 0; i < var; i++){
         variaveis.push_back(false);
@@ -127,66 +129,66 @@ void flip(vb &variaveis, int i){
 
 double calculateTemperature0(int i, int n, double t0, double tn){
     double t = t0 - (double)i * ((t0 - tn) / n);
-    cout << t << endl;
+    // cout << t << endl;
     return t;
 }
 
 double calculateTemperature1(int i, int n, double t0, double tn){
     double t = t0 * pow((tn / t0), ((double)i / n));
-    cout << t << endl;
+    // cout << t << endl;
     return t;
 }
 
 double calculateTemperature2(int i, int n, double t0, double tn){
-    double a = (double)((t0 - tn) * (n + 1)) / n;
-    double b = t0 - a;
-    double t = (a / (i + 1)) + b;
-    cout << t << endl;
+    double a = (double)((double)(t0 - tn) * (double)(n + 1)) / (double)n;
+    double b = (double)t0 - a;
+    double t = ((double)a / (double)(i + 1)) + (double)b;
+    // cout << t << endl;
     return t;
 }
 
 double calculateTemperature3(int i, int n, double t0, double tn){
     double a = (double)log(t0 - tn) / log(n);
     double t = t0 - pow((double)i, a);
-    cout << t << endl;
+    // cout << t << endl;
     return t;
 }
 
 double calculateTemperature4(int i, int n, double t0, double tn){
     double t = ((t0 - tn) / (1 + exp(3 * (i - ((double)n / 2))))) + tn;
-    cout << t << endl;
+    // cout << t << endl;
     return t;
 }
 
 double calculateTemperature5(int i, int n, double t0, double tn){
     double t =  ((double)1 / 2) * (t0 - tn) * (1 + cos((i * PI) / n)) + tn;
-    cout << t << endl;
+    // cout << t << endl;
     return t;
 }
 
 double calculateTemperature6(int i, int n, double t0, double tn){
     double t = ((double)1 / 2) * (t0 - tn) * (1 - tanh( ((double)(10 * i) / n) - 5  )) + tn;
-    cout << t << endl;
+    // cout << t << endl;
     return t;
 }
 
 double calculateTemperature7(int i, int n, double t0, double tn){
     double t = ((t0 - tn) / cosh((double)(10 * i) / n)) + tn;
-    cout << t << endl;
+    // cout << t << endl;
     return t;
 }
 
 double calculateTemperature8(int i, int n, double t0, double tn){
     double a = ((double)1 / n) * log((double) t0 / tn);
     double t = t0 * exp(-a * i);
-    cout << t << endl;
+    // cout << t << endl;
     return t;
 }
 
 double calculateTemperature9(int i, int n, double t0, double tn){
     double a = ((double)1 / pow(n, 2)) * log((double) t0 / tn);
     double t = t0 * exp(-a * pow(i, 2));
-    cout << t << endl;
+    // cout << t << endl;
     return t;
 }
 
@@ -261,21 +263,21 @@ int main(int argc, char const *argv[]) {
 
     vb variaveis;
     vc clausulas;
-    int numero_iteracoes, atual, tipo_resfriamento;
+    int numero_iteracoes, atual, tipo_resfriamento = stoi(argv[2]);
     double temperatura_inicial, temperatura_final;
 
-    readFile(clausulas, variaveis, arquivo, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento);
+    readFile(clausulas, variaveis, arquivo, numero_iteracoes, temperatura_inicial, temperatura_final);
 
     double media = 0;
     int x;
-    for(int i = 0; i < 1; i++){
+    for(int i = 0; i < 10; i++){
         randomize(variaveis);
         atual = avaliate(variaveis, clausulas);
         x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento);
         media += x;
-        // cout << "Execucao " << i+1 << ": " << x << endl;
+        cout << "Execucao " << i+1 << ": " << x << endl;
     }
-    media /= 1;
-    // cout << "Media: " << media << endl;
+    media /= 10;
+    cout << "Media: " << media << endl;
 
 }
