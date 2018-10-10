@@ -1,5 +1,10 @@
 import matplotlib.pyplot as plt
 
-plt.plot([1,2,3,4])
-plt.ylabel('some numbers')
+array = []
+
+with open('out') as f:
+    for line in f: # read rest of lines
+        array.append([float(line)])
+
+plt.plot(array)
 plt.show()

@@ -23,6 +23,9 @@ grafico de convergencia
 resultado da solução a cada iteração
 
 gnu-plot
+
+https://stackoverflow.com/questions/18176591/importerror-no-module-named-matplotlib-pyplot
+https://github.com/google/python-subprocess32/issues/38
 **/
 
 #include <bits/stdc++.h>
@@ -30,6 +33,8 @@ using namespace std;
 
 typedef vector<int> vi;
 typedef vector<bool> vb;
+
+#define PI 3.14159265
 
 struct Clausula{
     int *v;
@@ -68,10 +73,10 @@ void printVariables(vb &variaveis){
     }
 }
 
-void readFile(vc &clausulas, vb &variaveis, ifstream &arquivo, int &n, double &t0, double &tn){
+void readFile(vc &clausulas, vb &variaveis, ifstream &arquivo, int &n, double &t0, double &tn, int &cs){
     int var, clau, a, b, c, x;
 
-    arquivo >> var >> clau >> n >> t0 >> tn;
+    arquivo >> var >> clau >> n >> t0 >> tn >> cs;
 
     for(int i = 0; i < var; i++){
         variaveis.push_back(false);
@@ -84,7 +89,7 @@ void readFile(vc &clausulas, vb &variaveis, ifstream &arquivo, int &n, double &t
 
 }
 
-void initVariables(vb &variaveis){
+void randomize(vb &variaveis){
     srand(time(NULL));
     int x;
     for(int i = 0; i < variaveis.size(); i++){
@@ -113,16 +118,93 @@ void flip(vb &variaveis, int i){
     }
 }
 
-double calculateTemperature(int i, int n, double t0, double tn){
-    double a = log(t0 - tn) / log(n);
-    return t0 - pow((double)i, a);
+double calculateTemperature0(int i, int n, double t0, double tn){
+    double t = t0 - (double)i * ((t0 - tn) / n);
+    cout << t << endl;
+    return t;
+}
+
+double calculateTemperature1(int i, int n, double t0, double tn){
+    double t = t0 * pow((tn / t0), ((double)i / n));
+    cout << t << endl;
+    return t;
 }
 
 double calculateTemperature2(int i, int n, double t0, double tn){
-    return t0 - (double)i * ((t0 - tn) / n);
+    double a = (double)((t0 - tn) * (n + 1)) / n;
+    double b = t0 - a;
+    double t = (a / (i + 1)) + b;
+    cout << t << endl;
+    return t;
 }
 
-int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double tn){
+double calculateTemperature3(int i, int n, double t0, double tn){
+    double a = (double)log(t0 - tn) / log(n);
+    double t = t0 - pow((double)i, a);
+    cout << t << endl;
+    return t;
+}
+
+double calculateTemperature4(int i, int n, double t0, double tn){
+    double t = ((t0 - tn) / (1 + exp(3 * (i - (n / 2))))) + tn;
+    cout << t << endl;
+    return t;
+}
+
+double calculateTemperature5(int i, int n, double t0, double tn){
+    double t =  ((double)1 / 2) * (t0 - tn) * (1 + cos((i * PI) / n)) + tn;
+    cout << t << endl;
+    return t;
+}
+
+double calculateTemperature6(int i, int n, double t0, double tn){
+    double t = ((double)1 / 2) * (t0 - tn) * (1 - tanh( ((double)(10 * i) / n) - 5  )) + tn;
+    return t;
+}
+
+double calculateTemperature7(int i, int n, double t0, double tn){
+    double t;
+    return t;
+}
+
+double calculateTemperature8(int i, int n, double t0, double tn){
+    double t;
+    return t;
+}
+
+double calculateTemperature9(int i, int n, double t0, double tn){
+    double t;
+    return t;
+}
+
+double calculateTemperature(int i, int n, double t0, double tn, int cs){
+    switch(cs){
+        case 0:
+            return calculateTemperature0(i, n, t0, tn);
+        case 1:
+            return calculateTemperature1(i, n, t0, tn);
+        case 2:
+            return calculateTemperature2(i, n, t0, tn);
+        case 3:
+            return calculateTemperature3(i, n, t0, tn);
+        case 4:
+            return calculateTemperature4(i, n, t0, tn);
+        case 5:
+            return calculateTemperature5(i, n, t0, tn);
+        case 6:
+            return calculateTemperature6(i, n, t0, tn);
+        case 7:
+            return calculateTemperature7(i, n, t0, tn);
+        case 8:
+            return calculateTemperature8(i, n, t0, tn);
+        case 9:
+            return calculateTemperature9(i, n, t0, tn);
+        default:
+            return calculateTemperature0(i, n, t0, tn);
+    }
+}
+
+int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double tn, int cs){
 
     int s = variaveis.size(), a;
     double p, t, c;
@@ -142,13 +224,13 @@ int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double 
         }
 
         a = avaliate(conf_candidata, clausulas);         //VERIFICA SE CONFIGURAÇÃO GERADA É MELHOR QUE ATUAL
-        if(a >= atual){
+        t = calculateTemperature(k, n, t0, tn, cs);
+        if(a > atual){
             conf_atual = conf_candidata;
             atual = a;
-        }else{
-            t = calculateTemperature(k, n, t0, tn);
+        }else if(a < atual){
             p = (double) rand() / RAND_MAX;
-            c = exp((double)(a - atual)/t);
+            c = exp((double)(a - atual) / t);
             if(p <= c){
                 conf_atual = conf_candidata;
                 atual = a;
@@ -166,24 +248,21 @@ int main(int argc, char const *argv[]) {
 
     vb variaveis;
     vc clausulas;
-    int numero_iteracoes, atual;
+    int numero_iteracoes, atual, tipo_resfriamento;
     double temperatura_inicial, temperatura_final;
 
-    readFile(clausulas, variaveis, arquivo, numero_iteracoes, temperatura_inicial, temperatura_final);
+    readFile(clausulas, variaveis, arquivo, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento);
 
-    int x;
     double media = 0;
-    for(int i = 0; i < 10; i++){
-        initVariables(variaveis);
+    int x;
+    for(int i = 0; i < 1; i++){
+        randomize(variaveis);
         atual = avaliate(variaveis, clausulas);
-        x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final);
+        x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento);
         media += x;
-        cout << "Execucao " << i+1 << ": " << x << endl;
+        // cout << "Execucao " << i+1 << ": " << x << endl;
     }
-    media /= 10;
-    cout << "Media: " << media << endl;
-
-
-
+    media /= 1;
+    // cout << "Media: " << media << endl;
 
 }
