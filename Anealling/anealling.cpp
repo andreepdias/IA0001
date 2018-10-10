@@ -26,6 +26,13 @@ gnu-plot
 
 https://stackoverflow.com/questions/18176591/importerror-no-module-named-matplotlib-pyplot
 https://github.com/google/python-subprocess32/issues/38
+
+ sudo apt-get install -y python-subprocess32
+
+pip uninstall matplotlib
+python3 -m pip install matplotlib
+
+sudo apt-get install python3-tk
 **/
 
 #include <bits/stdc++.h>
@@ -146,7 +153,7 @@ double calculateTemperature3(int i, int n, double t0, double tn){
 }
 
 double calculateTemperature4(int i, int n, double t0, double tn){
-    double t = ((t0 - tn) / (1 + exp(3 * (i - (n / 2))))) + tn;
+    double t = ((t0 - tn) / (1 + exp(3 * (i - ((double)n / 2))))) + tn;
     cout << t << endl;
     return t;
 }
@@ -159,21 +166,27 @@ double calculateTemperature5(int i, int n, double t0, double tn){
 
 double calculateTemperature6(int i, int n, double t0, double tn){
     double t = ((double)1 / 2) * (t0 - tn) * (1 - tanh( ((double)(10 * i) / n) - 5  )) + tn;
+    cout << t << endl;
     return t;
 }
 
 double calculateTemperature7(int i, int n, double t0, double tn){
-    double t;
+    double t = ((t0 - tn) / cosh((double)(10 * i) / n)) + tn;
+    cout << t << endl;
     return t;
 }
 
 double calculateTemperature8(int i, int n, double t0, double tn){
-    double t;
+    double a = ((double)1 / n) * log((double) t0 / tn);
+    double t = t0 * exp(-a * i);
+    cout << t << endl;
     return t;
 }
 
 double calculateTemperature9(int i, int n, double t0, double tn){
-    double t;
+    double a = ((double)1 / pow(n, 2)) * log((double) t0 / tn);
+    double t = t0 * exp(-a * pow(i, 2));
+    cout << t << endl;
     return t;
 }
 

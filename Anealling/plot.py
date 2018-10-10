@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 array = []
@@ -7,4 +9,4 @@ with open('out') as f:
         array.append([float(line)])
 
 plt.plot(array)
-plt.show()
+plt.savefig('t4.png')
