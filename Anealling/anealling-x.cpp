@@ -12,17 +12,6 @@ pertubar solução do problema:
 ..
 Clever Algorithms: Nature-Inspired Programming Recipes
 www.cleveralgorithms.com/nature-inspired/stochastic/random_search.html
-
-dicas execuoes:
-1.
-varias vezes
-independente
-
-2.
-grafico de convergencia
-resultado da solução a cada iteração
-
-gnu-plot
 **/
 
 #include <bits/stdc++.h>
@@ -114,15 +103,12 @@ void flip(vb &variaveis, int i){
 }
 
 double calculateTemperature(int i, int n, double t0, double tn){
-    double a = log(t0 - tn) / log(n);
-    return t0 - pow((double)i, a);
-}
-
-double calculateTemperature2(int i, int n, double t0, double tn){
     return t0 - (double)i * ((t0 - tn) / n);
+
 }
 
 int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double tn){
+    srand(time(NULL));
 
     int s = variaveis.size(), a;
     double p, t, c;
@@ -160,7 +146,6 @@ int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double 
 
 
 int main(int argc, char const *argv[]) {
-    srand(time(NULL));
 
     ifstream arquivo(argv[1]);
 
@@ -170,19 +155,11 @@ int main(int argc, char const *argv[]) {
     double temperatura_inicial, temperatura_final;
 
     readFile(clausulas, variaveis, arquivo, numero_iteracoes, temperatura_inicial, temperatura_final);
+    initVariables(variaveis);
 
-    int x;
-    double media = 0;
-    for(int i = 0; i < 10; i++){
-        initVariables(variaveis);
-        atual = avaliate(variaveis, clausulas);
-        x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final);
-        media += x;
-        cout << "Execucao " << i+1 << ": " << x << endl;
-    }
-    media /= 10;
-    cout << "Media: " << media << endl;
-
+    atual = avaliate(variaveis, clausulas);
+    cout << annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final) << endl;
+    // cout << atual << endl;
 
 
 
