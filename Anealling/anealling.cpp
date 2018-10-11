@@ -161,7 +161,7 @@ double calculateTemperature4(int i, int n, double t0, double tn){
 }
 
 double calculateTemperature5(int i, int n, double t0, double tn){
-    double t =  ((double)1 / 2) * (t0 - tn) * (1 + cos((i * PI) / n)) + tn;
+    double t =  ((double)1 / 2) * (t0 - tn) * (1 + cos((i * M_PI) / n)) + tn;
     // cout << t << endl;
     return t;
 }
@@ -219,9 +219,9 @@ double calculateTemperature(int i, int n, double t0, double tn, int cs){
     }
 }
 
-int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double tn, int cs){
+pair<int,int> annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double tn, int cs){
 
-    int s = variaveis.size(), a;
+    int s = variaveis.size(), a, m = atual;
     double p, t, c;
     vb conf_candidata;
     vb conf_atual;
@@ -229,6 +229,7 @@ int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double 
     conf_atual = variaveis;
 
     for(int k = 0; k < n; k++){
+        // cout << atual << endl;
         conf_candidata = conf_atual;
 
         for(int i = 0; i < s; i++){         //FLIP 5% DAS VARIÁVEIS
@@ -242,6 +243,7 @@ int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double 
         if(a > atual){
             conf_atual = conf_candidata;
             atual = a;
+            m = max(m, a);
         }else if(a < atual){
             t = calculateTemperature(k, n, t0, tn, cs);
             p = (double) rand() / RAND_MAX;
@@ -252,7 +254,7 @@ int annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double 
             }
         }
     }
-    return atual;
+    return make_pair(atual, m);
 }
 
 
@@ -269,15 +271,17 @@ int main(int argc, char const *argv[]) {
     readFile(clausulas, variaveis, arquivo, numero_iteracoes, temperatura_inicial, temperatura_final);
 
     double media = 0;
-    int x;
-    for(int i = 0; i < 1; i++){
+    pair<int,int> x;
+    cout << "Arquivo: " << argv[1] << endl;
+    cout << "Tipo de resfriamento: " << argv[2] << endl;
+    for(int i = 0; i < 10; i++){
         randomize(variaveis);
         atual = avaliate(variaveis, clausulas);
         x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento);
-        media += x;
-        cout << "Execucao " << i+1 << ": " << x << endl;
+        media += x.first;
+        cout << "Execucao " << i+1 << ": " << x.first << "\t (max: " << x.second << ")" << endl;
     }
-    media /= 1;
+    media /= 10;
     cout << "Media: " << media << endl;
 
 }
