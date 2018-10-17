@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 
 plt.style.use('classic')
 
-arquivo = 'uf250_01.cnf'
+arquivo = 'uf20_01.cnf'
 tipo_resfriamento = '8'
 numero_iteracoes = 250000
 numero_testes = 10
-prefixo = ''
+prefixo = '_random'
 
 arrays = [0.0] * numero_testes
 for i in range(0, numero_testes):
@@ -24,13 +24,18 @@ for i in range(0, numero_testes):
 
 array = []
 
+x = 0
+
 for k in range(0, numero_iteracoes):
     media = 0.0
     for i in range(0, numero_testes):
         media = media + arrays[i][k]
     media =  media / numero_testes
     print(media)
-    array.append(media)
+    x = x + 1
+    if x == 1:
+        array.append(media)
+        x = 0
 
 
 # print(arrays[0][0])
@@ -45,5 +50,5 @@ for k in range(0, numero_iteracoes):
 # print(arrays[9][0])
 # print(array[0])
 
-plt.plot(array, marker=None)
-plt.savefig('250_aneling.png')
+plt.plot(array, marker=None, color="r")
+plt.savefig('r_20_anealing_1.png')

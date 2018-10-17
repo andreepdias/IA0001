@@ -234,7 +234,7 @@ pair<int,int> annealing(vb &variaveis, vc &clausulas, int atual, int n, double t
 
     for(int k = 0; k < n; k++){
         arq_saida << atual << endl;
-        cout << atual << endl;
+        // cout << atual << endl;
         conf_candidata = conf_atual;
 
         for(int i = 0; i < s; i++){         //FLIP 5% DAS VARIÁVEIS
@@ -288,7 +288,7 @@ pair<int,int> random(vb &variaveis, vc &clausulas, int atual, int n, double t0, 
 
 
 int main(int argc, char const *argv[]) {
-    // srand(time(NULL));
+    srand(time(NULL));
 
     ifstream arquivo(argv[1]);
 
@@ -309,11 +309,11 @@ int main(int argc, char const *argv[]) {
     for(int i = 0; i < 10; i++){
         randomize(variaveis);
         atual = avaliate(variaveis, clausulas);
-        x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento, nome_arquivo, i+1);
-        media += x.first;
-        // cout << "Execucao " << i+1 << ": " << x.first << "\t (max: " << x.second << ")" << endl;
+        x = random(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento, nome_arquivo, i+1);
+        media += x.second;
+        cout << "Execucao " << i+1 << ": " << x.first << "\t (max: " << x.second << ")" << endl;
     }
     media /= 10;
-    // cout << "Media: " << media << endl;
+    cout << "Media: " << media << endl;
 
 }
