@@ -309,7 +309,7 @@ int main(int argc, char const *argv[]) {
     for(int i = 0; i < 10; i++){
         randomize(variaveis);
         atual = avaliate(variaveis, clausulas);
-        x = random(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento, nome_arquivo, i+1);
+        x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento, nome_arquivo, i+1);
         media += x.second;
         cout << "Execucao " << i+1 << ": " << x.first << "\t (max: " << x.second << ")" << endl;
     }

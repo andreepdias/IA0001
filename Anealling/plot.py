@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 
 plt.style.use('classic')
 
-arquivo = 'uf20_01.cnf'
+arquivo = 'uf250_01.cnf'
 tipo_resfriamento = '8'
 numero_iteracoes = 250000
 numero_testes = 10
-prefixo = '_random'
+prefixo = ''
 
 arrays = [0.0] * numero_testes
 for i in range(0, numero_testes):
@@ -51,4 +51,4 @@ for k in range(0, numero_iteracoes):
 # print(array[0])
 
 plt.plot(array, marker=None, color="r")
-plt.savefig('r_20_anealing_1.png')
+plt.savefig('250_anealing_1.png')
