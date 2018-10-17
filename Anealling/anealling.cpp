@@ -29,8 +29,8 @@ https://github.com/google/python-subprocess32/issues/38
 
  sudo apt-get install -y python-subprocess32
 
-pip uninstall matplotlib
-python3 -m pip install matplotlib
+sudo pip uninstall matplotlib
+sudo python3 -m pip install matplotlib
 
 sudo apt-get install python3-tk
 **/
@@ -99,7 +99,7 @@ void readFile(vc &clausulas, vb &variaveis, ifstream &arquivo, int &n, double &t
 }
 
 void randomize(vb &variaveis){
-    srand(time(NULL));
+    // srand(time(NULL));
     int x;
     for(int i = 0; i < variaveis.size(); i++){
         x = rand() % 2;
@@ -234,11 +234,12 @@ pair<int,int> annealing(vb &variaveis, vc &clausulas, int atual, int n, double t
 
     for(int k = 0; k < n; k++){
         arq_saida << atual << endl;
+        cout << atual << endl;
         conf_candidata = conf_atual;
 
         for(int i = 0; i < s; i++){         //FLIP 5% DAS VARIÁVEIS
             p = (double) rand() / RAND_MAX;
-            if(p <= 0.05){
+            if(p < 0.01){
                 flip(conf_candidata, i);
             }
         }
@@ -261,9 +262,33 @@ pair<int,int> annealing(vb &variaveis, vc &clausulas, int atual, int n, double t
     return make_pair(atual, m);
 }
 
+pair<int,int> random(vb &variaveis, vc &clausulas, int atual, int n, double t0, double tn, int cs, string arquivo, int iteracao){
+    // srand(time(NULL));
+
+    int s = variaveis.size(), a, m = atual, x;
+    double p, t, c;
+
+    string nome_arquivo = arquivo + "_" + to_string(cs) + "_" + to_string(iteracao) + "_random";
+    ofstream arq_saida(nome_arquivo);
+
+    for(int k = 0; k < n; k++){
+        randomize(variaveis);
+        a = avaliate(variaveis, clausulas);         //VERIFICA SE CONFIGURAÇÃO GERADA É MELHOR QUE ATUAL
+        
+        arq_saida << a << endl;
+        // cout << a << endl;
+
+        
+        if(a > m){
+            m = a;
+        }
+    }
+    return make_pair(atual, m);
+}
+
 
 int main(int argc, char const *argv[]) {
-    srand(time(NULL));
+    // srand(time(NULL));
 
     ifstream arquivo(argv[1]);
 
@@ -280,7 +305,7 @@ int main(int argc, char const *argv[]) {
     pair<int,int> x;
     // cout << "Arquivo: " << nome_arquivo << endl;
     // cout << "Tipo de resfriamento: " << argv[2] << endl;
-    // cout << "t0: " << temperatura_inicial << "\ttn: " << temperatura_final << endl; 
+    // cout << "t0: " << temperatura_inicial << "\ttn: " << temperatura_final << endl;
     for(int i = 0; i < 10; i++){
         randomize(variaveis);
         atual = avaliate(variaveis, clausulas);
