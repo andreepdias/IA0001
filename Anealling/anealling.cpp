@@ -219,17 +219,21 @@ double calculateTemperature(int i, int n, double t0, double tn, int cs){
     }
 }
 
-pair<int,int> annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double tn, int cs){
+pair<int,int> annealing(vb &variaveis, vc &clausulas, int atual, int n, double t0, double tn, int cs, string arquivo, int iteracao){
 
     int s = variaveis.size(), a, m = atual;
     double p, t, c;
     vb conf_candidata;
     vb conf_atual;
 
+    string nome_arquivo = arquivo + "_" + to_string(cs) + "_" + to_string(iteracao);
+    ofstream arq_saida(nome_arquivo);
+
+
     conf_atual = variaveis;
 
     for(int k = 0; k < n; k++){
-        // cout << atual << endl;
+        arq_saida << atual << endl;
         conf_candidata = conf_atual;
 
         for(int i = 0; i < s; i++){         //FLIP 5% DAS VARIÁVEIS
@@ -267,21 +271,24 @@ int main(int argc, char const *argv[]) {
     vc clausulas;
     int numero_iteracoes, atual, tipo_resfriamento = stoi(argv[2]);
     double temperatura_inicial, temperatura_final;
+    string nome_arquivo = argv[1];
 
     readFile(clausulas, variaveis, arquivo, numero_iteracoes, temperatura_inicial, temperatura_final);
 
+
     double media = 0;
     pair<int,int> x;
-    cout << "Arquivo: " << argv[1] << endl;
-    cout << "Tipo de resfriamento: " << argv[2] << endl;
+    // cout << "Arquivo: " << nome_arquivo << endl;
+    // cout << "Tipo de resfriamento: " << argv[2] << endl;
+    // cout << "t0: " << temperatura_inicial << "\ttn: " << temperatura_final << endl; 
     for(int i = 0; i < 10; i++){
         randomize(variaveis);
         atual = avaliate(variaveis, clausulas);
-        x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento);
+        x = annealing(variaveis, clausulas, atual, numero_iteracoes, temperatura_inicial, temperatura_final, tipo_resfriamento, nome_arquivo, i+1);
         media += x.first;
-        cout << "Execucao " << i+1 << ": " << x.first << "\t (max: " << x.second << ")" << endl;
+        // cout << "Execucao " << i+1 << ": " << x.first << "\t (max: " << x.second << ")" << endl;
     }
     media /= 10;
-    cout << "Media: " << media << endl;
+    // cout << "Media: " << media << endl;
 
 }
